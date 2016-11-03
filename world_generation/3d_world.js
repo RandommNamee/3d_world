@@ -10,14 +10,14 @@ var mapSize = {                  //
 	z: 25,                       //
     maxY: 2,                     //
     minY: 2                      //
-}                                //
+};                               //
 var blocks = {};                 //
 //-------------------------------//
 
 /* TO DO LIST: */
 
 /* 
-1. give every block a terrainType depending on the closest other blocks terrain (first one is flat). Then increase block scaling and split every block in 1/10 of the main block then programm every single terrain type 
+1. 
 2.
 3.
 */
@@ -46,7 +46,7 @@ function init() {
     genTerrain();
 
      var spotLight = new THREE.SpotLight(0xffffff);
-        spotLight.position.set( mapSize.x * 1, mapSize.y * 2, mapSize.z * 1);
+        spotLight.position.set( mapSize.x , mapSize.y * 4, mapSize.z );
         spotLight.shadowCameraNear = 20;
         spotLight.shadowCameraFar = 50;
         spotLight.castShadow = true;
@@ -71,7 +71,7 @@ function handleResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 };
 // this function adds all the blocks the the blocks object
-function genBlocks(cubeGeometry, fillerMesh) {
+function genBlocks(cubeGeometry, mesh) {
 
     for (var l = 1; l <= mapSize.x; l++) {
         //l for lenght (x)
@@ -88,27 +88,26 @@ function genBlocks(cubeGeometry, fillerMesh) {
             
             if (w > 1 && l == 1 && d && f) {
             
-                hChange += Math.floor(Math.random() * 3 - 1);
+                hChange += Math.floor(Math.random() * 1.3);
             } else if (w > 1 && l != 1 && d && f) {
 
                 searchH1 = objectLength(blocks[l - 1][w]) - mapSize.y;
                 searchH2 = objectLength(blocks[l][w - 1]) - mapSize.y;
-                hChange = (searchH1 + searchH2) / 2 + Math.floor(Math.random() * 3 - 1);
+                hChange = (searchH1 + searchH2) / 2 + Math.floor(Math.random() * 1.3);
             } else if (l != 1 && d && f) {
                 
                 searchH1 = objectLength(blocks[l - 1][w]) - mapSize.y;
                 searchH2 = objectLength(blocks[l][w - 1]) - mapSize.y;
-                hChange = searchH1 + Math.floor(Math.random() * 3 - 1);
+                hChange = searchH1 + Math.floor(Math.random() * 1.3);
             } else {
 
                 hChange += 1;
             };
 
             for (var h = 1; h <= mapSize.y + hChange; h++) {
-                //h for height (y)
-                console.log(l, w, h);                                 
+                //h for height (y)                                 
                 blocks[l][w][h] = {};
-                blocks[l][w][h].block = new THREE.Mesh(cubeGeometry, fillerMesh)
+                blocks[l][w][h].block = new THREE.Mesh(cubeGeometry, mesh)
                 blocks[l][w][h].block.position = {
                     x: l,
                     y: h,
@@ -188,18 +187,31 @@ function genTerrain() {
 };
 //this function has to set the  terrain type of the block(l , w , h) depending on its closest other blocks 
 function getTerrainType(l, w, h, type) {
-    
-    var setTer = type;
 
-    if (type != "border") {
-        setTer = "this"
-    }
+    var nearBlocks = -1;
     
-    blocks[l][w][h].terrain = setTer;
+    if (type != 'border') {    
+        //counts all nearby Blocks
+        for (var a = -1; a <= 1; a++) {
+            //a for length (x)
+            for (var b = -1; b <= 1; b++) {
+                //b for width (z)
+                for (var c = -1; c <= 1; c++) {
+                    //b for height (y)
+                    if (blocks[l + a][w + b][h + c]) {
+                        nearBlocks += c;
+                    };
+                };
+            };
+        };
+        type = 'center';
+        console.log(nearBlocks);
+    };
+    
+    blocks[l][w][h].terrain = type;
     
     scene.add(blocks[l][w][h].block);
     console.log(l, w, h);
-    console.log(blocks[l][w][h].terrain);
 
 };
 // this function checks how many objects there are inside of another object
