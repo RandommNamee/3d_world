@@ -5,9 +5,9 @@ var renderer;                    //
 var scene;                       //
 var camara;                      //
 var mapSize = {                  //
-	x: 25,                       //
-	y: 10,                       //
-	z: 25,                       //
+	x: 50,                       //
+	y: 25,                       //
+	z: 50,                       //
     maxY: 2,                     //
     minY: 2                      //
 };                               //
@@ -42,6 +42,7 @@ function init() {
     var cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
     var fillerMesh = new THREE.MeshLambertMaterial({color: 0x00ff00});
 
+    //generation Functions
     genBlocks(cubeGeometry, fillerMesh);
     genTerrain();
 
@@ -72,7 +73,7 @@ function handleResize() {
 };
 // this function adds all the blocks the the blocks object
 function genBlocks(cubeGeometry, mesh) {
-
+    //the for loop that creates all cubes 
     for (var l = 1; l <= mapSize.x; l++) {
         //l for lenght (x)
         blocks[l] = {};
@@ -85,29 +86,34 @@ function genBlocks(cubeGeometry, mesh) {
             var searchH2;
             var d = hChange > - mapSize.y + mapSize.minY;
             var f = hChange <= mapSize.y * 2 - mapSize.maxY;
+
             
             if (w > 1 && l == 1 && d && f) {
-            
-                hChange += Math.floor(Math.random() * 1.3);
-            } else if (w > 1 && l != 1 && d && f) {
+                
+                hChange += Math.floor(Math.random() * 3 - 1);
+            } else if (w > 1 && l > 1 && d && f) {
 
                 searchH1 = objectLength(blocks[l - 1][w]) - mapSize.y;
                 searchH2 = objectLength(blocks[l][w - 1]) - mapSize.y;
-                hChange = (searchH1 + searchH2) / 2 + Math.floor(Math.random() * 1.3);
-            } else if (l != 1 && d && f) {
+                hChange = (searchH1 + searchH2) / 2 + Math.floor(Math.random() * 1.4);
+            } else if (w == 1 && l > 1 && d && f) {
+                
+                searchH1 = objectLength(blocks[l - 1][w]) - mapSize.y;
+                hChange = searchH1 + Math.floor(Math.random() * 3 - 1);
+            } else if (l > 1 && d && f) {
                 
                 searchH1 = objectLength(blocks[l - 1][w]) - mapSize.y;
                 searchH2 = objectLength(blocks[l][w - 1]) - mapSize.y;
-                hChange = searchH1 + Math.floor(Math.random() * 1.3);
+                hChange = (searchH1 + searchH2) / 2 + Math.floor(Math.random() * 1.4);
             } else {
 
-                hChange += 1;
+                hChange += Math.round(Math.random() * 11 - 5);
             };
 
             for (var h = 1; h <= mapSize.y + hChange; h++) {
                 //h for height (y)                                 
                 blocks[l][w][h] = {};
-                blocks[l][w][h].block = new THREE.Mesh(cubeGeometry, mesh)
+                blocks[l][w][h].block = new THREE.Mesh(cubeGeometry, mesh);
                 blocks[l][w][h].block.position = {
                     x: l,
                     y: h,
@@ -188,7 +194,7 @@ function genTerrain() {
 //this function has to set the  terrain type of the block(l , w , h) depending on its closest other blocks 
 function getTerrainType(l, w, h, type) {
 
-    var nearBlocks = -1;
+    var nearBlocks = 0;
     
     if (type != 'border') {    
         //counts all nearby Blocks
@@ -204,6 +210,7 @@ function getTerrainType(l, w, h, type) {
                 };
             };
         };
+        nearBlocks = Math.round(nearBlocks * 1.5 + 4);
         type = 'center';
         console.log(nearBlocks);
     };
