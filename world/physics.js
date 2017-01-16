@@ -7,24 +7,24 @@
 */
 
 var physics = {
-	//updates everything called in the Game's main loop
-	updatePhysics: function () {
-
-
-	},
+	
 	//G:   ,
 
 	//used to change/define the speed of an object
-	updateMovement: function (object, spdX, spdY, spdZ) {
+	updateMovement: function (object, spdX, spdY, spdZ, maxSpd) {
+		
 		// create/update object.direction
 		if (object.force) {
 			
-			object.force = {
+			//checkes if maxSpd is >= object.force
+			if (object.force.x + object.force.z <= maxSpd) {
+				
+				object.force = {
 
-				x: this.x + spdX,
-				y: this.y + spdY,
-				z: this.z + spdZ,
-				isFalling: this.isFalling
+					x: this.x + spdX,
+					y: this.y + spdY,
+					z: this.z + spdZ
+				};
 			};
 		} else {
 
@@ -32,24 +32,28 @@ var physics = {
 
 				x: spdX,
 				y: spdY,
-				z: spdZ,
-				isFalling: this.isFalling
+				z: spdZ
 			};
 		};
 	}, 
 
 	drawMovement: function (object) {
+		
 		//update the objects position depending on force
 		object.position.set(object.force.x, object.force.y, object.force.z);
 	},
+	
 	//not done with this yet 
 	detectCollision: function (object, collidables) {
+		
 		//checks if an object touches another object
 		for (var vertexIndex = 0; vertexIndex < object.geometry.vertices.length; vertexIndex++) {
+			
 			//makes a vector from the origin to the vertex
 			var localVertex = object.geometry.vertices[vertexIndex].clone();
 			var globalVertex = localVertex.applyMatrix4(object.matrix);
 			var directionVector = globalVertex.sub(object.position);
+			
 			//creates a ray with the direction of the vector and safes all collisions 
 			var ray = new THREE.Raycaster(object.position , directionVector , 0 , directionVector.length()); 
 			var collisionResults = ray.intersectObjects(collidables);
@@ -59,6 +63,7 @@ var physics = {
 	},
 
 	gravity: function (object) {
+		
 		//remove a ceartain amount from the y axis (.direction.y) to create gravity
 		if (object.force.isFalling === true) {
 			object.force.y -= G;
