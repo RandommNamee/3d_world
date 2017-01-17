@@ -16,7 +16,7 @@ function Game() {
         sizeX: 50,
     	sizeY: 25,
     	sizeZ: 50,                      
-        gradient: 1.                     
+        gradient: 1                     
     },
         collidables = [];           
 
