@@ -1,15 +1,13 @@
 
-
-
-
-function entity() {
+var entity = {
 
 	//constructor to create a new player
-	function player(type) {
+	player: function() {
 
 		var body,
 			
 			stats =  {
+				mms: 1,
 				maxSpd: 3
 			},
 			
@@ -22,24 +20,31 @@ function entity() {
 				l: 'a',
 				jump: 'spacebar'
 			};
-	
-		body = new THREE.BoxGeometry(1, 1, 1);
+
+		body = new THREE.Mesh( new THREE.BoxGeometry(10, 10, 10) , new THREE.MeshBasicMaterial({color: 0xff0000}) );
 
 		controls = function(key) {
 
-			if (key === fwd) {
+			if (key === hotkeys.fwd) {
 
-				physics.updateMovment(body, 1, 0, 0, stats.maxSpd);
-			} else if (key === bwd) {
+				physics.updateMovment(body, stats.mms, 0, 0, stats.maxSpd);
+			} else if (key === hotkeys.bwd) {
 
-				physics.updateMovment(body, -1, 0, 0, stats.maxSpd);
-			} else if (key === r) {
+				physics.updateMovment(body, -stats.mms, 0, 0, stats.maxSpd);
+			} else if (key === hotkeys.r) {
 
-				physics.updateMovment(body, 0, 0, -1, stats.maxSpd);
-			} else if (key === l) {
+				physics.updateMovment(body, 0, 0, -stats.mms, stats.maxSpd);
+			} else if (key === hotkeys.l) {
 				
-				physics.updateMovment(body, 0, 0, 1, stats.maxSpd);
+				physics.updateMovment(body, 0, 0, stats.mms, stats.maxSpd);
 			};
 		};
-	};
+
+		//for the cunstructor
+		this.body = body;
+		this.stats = stats;
+		this.controls = controls;
+		this.hotkeys = hotkeys;
+
+	},
 };

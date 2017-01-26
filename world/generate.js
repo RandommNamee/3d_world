@@ -16,7 +16,7 @@ function Game() {
         sizeX: 50,
     	sizeY: 25,
     	sizeZ: 50,                      
-        gradient: 1                     
+        gradient: 1                   
     },
         collidables = [];           
 
@@ -27,7 +27,7 @@ function Game() {
     	
     	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.x = map.sizeX * 1.1;
-        camera.position.y = map.sizeY * 2;
+        camera.position.y = map.sizeY * 3;
         camera.position.z = map.sizeZ * 1.1;
         camera.lookAt(scene.position);
 
@@ -46,8 +46,11 @@ function Game() {
         }));
         scene.add(mesh);
 
+        var player = new entity.player;
+        scene.add(player.body);
+
         var spotLight = new THREE.SpotLight(0xffffff);
-            spotLight.position.set( map.sizeX * 2, map.sizeY * 1.5, map.sizeZ);
+            spotLight.position.set( map.sizeX * 2, map.sizeY * 3, map.sizeZ);
             spotLight.shadowCameraNear = 20;
             spotLight.shadowCameraFar = 50;
             spotLight.castShadow = true;
@@ -59,13 +62,22 @@ function Game() {
 
         render();
         window.addEventListener('resize', handleResize, false);
+        
         //all local vars and functions that need to be exported
         this.camera = camera;
+        this.scene = scene;
     };
 
     // this function makes the the map
     function genMap() {
         
+        var stoChunkGrad = [];
+
+        for (var i = 0; i < (map.sizeX / 5) * (map.sizeZ / 5); i++) {
+
+            stoChunkGrad[i] = parseFloat((Math.random() * map.gradient * 0.50).toFixed(3));
+        }
+
         //starting point of generation
         var h = map.sizeY + Math.round((Math.random() * map.sizeY / 10 - map.sizeY / 20) * 100) / 100;
         //h for heigth (y)        
@@ -78,22 +90,23 @@ function Game() {
             for (var w = 0; w < map.sizeZ; w++) {
                 //w for width (z)
                 map[l][w] = [];
+                grad = Math.random() * map.gradient - stoChunkGrad[Math.floor(l / 5) * map.sizeZ / 5 + Math.floor(w / 5)];
 
                 if (l === 0 && w === 0) {
                     
-                    h += parseFloat((Math.random() * map.gradient - map.gradient / 2).toFixed(3));
+                    h += parseFloat((grad).toFixed(3));
                     map[l][w][0] = new THREE.Vector3(l, h, w);
                 } else if (l === 0) {
                     
-                    h += parseFloat((Math.random() * map.gradient - map.gradient / 2).toFixed(3));
+                    h += parseFloat((grad).toFixed(3));
                     map[l][w][0] = new THREE.Vector3(l, h, w);
                 } else if (w === 0) {
                     
-                    h = parseFloat((Math.random() * map.gradient - map.gradient / 2 + map[l - 1][w][0].y).toFixed(3));
+                    h = parseFloat(((grad) + map[l - 1][w][0].y).toFixed(3));
                     map[l][w][0] = new THREE.Vector3(l, h, w);
                 } else {
 
-                    h += parseFloat((Math.random() * map.gradient - map.gradient / 2 + (map[l - 1][w][0].y - h) / 2).toFixed(3));
+                    h += parseFloat(((grad) + (map[l - 1][w][0].y - h) / 2).toFixed(3));
                     map[l][w][0] = new THREE.Vector3(l, h, w);
                 };
                 map.geometry.vertices.push(map[l][w][0]);
@@ -101,7 +114,7 @@ function Game() {
         };        
 
         updateFaces(map);
-        //map.geometry.computeVertexNormals(true);
+        map.geometry.computeVertexNormals(true);
         map.geometry.computeFaceNormals();
     };
 
@@ -138,17 +151,21 @@ function Game() {
               
             for (var j = i - 1; j > 0; j--) {
 
-                check[check.length] = "!map[" + l + " - " + i + "][" + w + " - (" + i + " + " + j + ")][0]";
-                check[check.length] = "!map[" + l + " - (" + i + " + " + j + ")][" + w + " - " + i + "][0]";
+                check[check.length] = "!map[" + l + " - " + i + "][" + w + " - (" + i + " + " + j + ")][0].tree";
+                check[check.length] = "!map[" + l + " - (" + i + " + " + j + ")][" + w + " - " + i + "][0].tree";
                     
-                later && (check[check.length] = "!map[" + l + " + " + i + "][" + w + " + (" + i + " + " + j + ")][0]") & (check[check.length] = "!map[" + l + " + (" + i + " + " + j + ")][" + w + " + " + i + "][0]");
+                later && (check[check.length] = "!map[" + l + " + " + i + "][" + w + " + (" + i + " + " + j + ")][0].tree") & (check[check.length] = "!map[" + l + " + (" + i + " + " + j + ")][" + w + " + " + i + "][0].tree");
             };
 
-            check[check.length] = "!map[" + l + " - " + i + "][" + w + " - " + i + "][0]";
+            check[check.length] = "!map[" + l + " - " + i + "][" + w + " - " + i + "][0].tree";
+            check[check.length] = "!map[" + l + " - " + i + "][" + w + "][0].tree";
+            check[check.length] = "!map[" + l + "][" + w + " - " + i + "][0].tree";
 
-            later && (check[check.length] = "!map[" + l + " + " + i + "][" + w + " + " + i + "][0]");
+            later && (check[check.length] = "!map[" + l + " + " + i + "][" + w + " + " + i + "][0].tree") & (check[check.length] = "!map[" + l + "][" + w + " - " + i + "][0].tree") & (check[check.length] = "!map[" + l + " - " + i + "][" + w + "][0].tree");
             
         };
+
+        return check;
 
         if (Math.random() >= 0.95 && l > 1 && w > 1 && testForTrue(check)) {
                         
@@ -188,4 +205,5 @@ function Game() {
     // export global functions and vars
     this.init = init;
     this.map = map;
+    this.checkForTrees = checkForTrees;
 };

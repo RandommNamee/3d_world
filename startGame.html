@@ -1,20 +1,30 @@
 <!DOCTYPE html>
 	<head>
+		<style type="text/css">
+			body {
+            	/* set margin to 0 and overflow to hidden, to go fullscreen */
+            	margin: 0;
+            	overflow: hidden;
+        	};
+		</style>
 		<title>Lets get it started</title>
 		<!-- Libraries -->
 		<script type="text/javascript" src="libs/three.js"></script>
 		<!-- Scripts -->
 		<script type="text/javascript" src="world/generate.js"></script>
 		<script type="text/javascript" src="world/physics.js"></script>
+		<script type="text/javascript" src="world/entities.js"></script>
 		<script>
 			window.onload = function() {
 				//Main Game
 				this.g = new Game;
-				this.g.init();
-			};
+				this.g.init();	
+
+      		};
 
 		</script>
 		<!-- Styles -->
 	</head>
 	<body>
+
 	</body>
